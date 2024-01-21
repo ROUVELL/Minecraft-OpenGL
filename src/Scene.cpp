@@ -3,42 +3,22 @@
 #include "Player.h"
 
 Scene::Scene(Player& player)
-    : player(player)
+    : player(player), world(player)
 {
 }
 
 void Scene::Initialize()
 {
-    std::vector<Vertex> vertices{
-        Vertex{{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
-        Vertex{{1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-        Vertex{{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-        Vertex{{0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}}
-    };
-
-    std::vector<unsigned int> indices{
-        0, 1, 2,
-        0, 2, 3
-    };
-
-    meshes.emplace_back(vertices, indices);
-
-    shader.Load("default");
-    texture.Load("test.png");
-
-    shader.Activate();
-    shader.SetTexture(texture, "u_tex0");
-    texture.Bind();
+    world.Generate();
 }
 
 void Scene::Update(float dt)
 {
     player.Update(dt);
-    shader.SetCamMat(player.GetMatrix());
+    world.Update();
 }
 
 void Scene::Render()
 {
-    for (const auto& mesh : meshes)
-        mesh.Render();
+    world.Render();
 }

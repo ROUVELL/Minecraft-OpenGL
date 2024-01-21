@@ -5,7 +5,7 @@
 #include "Window.h"
 
 Engine::Engine()
-    : player({ 0.0f, 0.0f, 2.0f }), scene(player)
+    : player({ H_CHUNK_SIZE, H_CHUNK_SIZE, H_CHUNK_SIZE}), scene(player)
 {
     Window::Initialize();
     scene.Initialize();

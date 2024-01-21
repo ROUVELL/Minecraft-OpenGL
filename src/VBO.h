@@ -7,7 +7,12 @@
 struct Vertex
 {
 	glm::vec3 position;
-	glm::vec2 uv;
+	glm::uint8 voxelId;
+	glm::uint8 faceId;
+
+	Vertex(glm::vec3 p, glm::uint8 vId, glm::uint8 fId)
+		: position(p), voxelId(vId), faceId(fId)
+	{ }
 };
 
 class VBO

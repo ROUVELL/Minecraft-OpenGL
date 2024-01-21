@@ -2,35 +2,31 @@
 
 #include "glad/glad.h"
 
-Mesh::Mesh()
+Mesh::Mesh(const std::vector<Vertex>& vert)
 {
+	Build(vert);
 }
 
-Mesh::Mesh(const std::vector<Vertex>& vert, const std::vector<unsigned int>& ind)
+void Mesh::Build(const std::vector<Vertex>& vert)
 {
-	Build(vert, ind);
-}
+	count = static_cast<int>(vert.size());
 
-void Mesh::Build(const std::vector<Vertex>& vert, const std::vector<unsigned int>& ind)
-{
-	elements = static_cast<int>(ind.size());
+	vao.Create();
 
 	VBO vbo{ vert };
-	EBO ebo{ ind };
 
-	vao.LinkAttrib(0, 3, 0);
-	vao.LinkAttrib(1, 2, 3);
+	vao.LinkFloatAttr(0, 3);
+	vao.LinkByteAttr(1, 1);
+	vao.LinkByteAttr(2, 1);
 
 	vao.LinkVBO(vbo);
-	vao.LinkEBO(ebo);
 
 	vbo.Delete();
-	ebo.Delete();
 }
 
 void Mesh::Render() const
 {
 	vao.Bind();
-	glDrawElements(GL_TRIANGLES, elements, GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_TRIANGLES, 0, count);
 	vao.Unbind();
 }

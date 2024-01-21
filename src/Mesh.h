@@ -8,16 +8,15 @@
 class Mesh
 {
 public:
-	Mesh();
-	Mesh(const std::vector<Vertex>& vert, const std::vector<unsigned int>& ind);
+	Mesh() = default;
+	Mesh(const std::vector<Vertex>& vert);
 
-	void Build(const std::vector<Vertex>& vert,
-		const std::vector<unsigned int>& ind);
+	void Build(const std::vector<Vertex>& vert);
 
 	void Render() const;
 
 private:
 	VAO vao;
 
-	int elements{ 0 };
+	int count{ 0 };
 };

@@ -2,9 +2,9 @@
 
 #include <vector>
 
+#include "World.h"
 #include "Shader.h"
 #include "Texture.h"
-#include "Mesh.h"
 
 class Player;
 
@@ -20,9 +20,6 @@ public:
 
 private:
 	Player& player;
-
-	Shader shader;
-	Texture texture;
-	std::vector<Mesh> meshes;
+	World world;
 };
 

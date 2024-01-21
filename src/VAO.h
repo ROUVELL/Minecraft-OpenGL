@@ -6,11 +6,13 @@
 class VAO
 {
 public:
-	VAO();
+	VAO() = default;
 
-	void LinkAttrib(unsigned int attr, unsigned int numComponents,
-		int stride, void* offset) const;
-	void LinkAttrib(unsigned int attr, unsigned int numComponents, unsigned int offset) const;
+	void Create();
+
+	void LinkFloatAttr(unsigned int attr, unsigned int numComponents);
+	void LinkByteAttr(unsigned int attr, unsigned int numComponents);
+
 	void LinkVBO(VBO vbo) const;
 	void LinkEBO(EBO ebo) const;
 
@@ -20,5 +22,6 @@ public:
 
 private:
 	unsigned int ID{ 0 };
+	unsigned int offset{ 0 };
 };
 

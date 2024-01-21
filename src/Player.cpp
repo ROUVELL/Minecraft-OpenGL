@@ -17,7 +17,7 @@ void Player::Update(float dt)
 
 void Player::Movement(float dt)
 {
-    const float step = 10.0f * dt;
+    const float step = 40.0f * dt;
 
     if (Window::IsKeyPressed(GLFW_KEY_W))  MoveForward(step);
     if (Window::IsKeyPressed(GLFW_KEY_S))  MoveBackward(step);

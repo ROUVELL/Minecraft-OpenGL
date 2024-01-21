@@ -2,23 +2,25 @@
 
 #include <glad/glad.h>
 
-VAO::VAO()
+void VAO::Create()
 {
 	glCreateVertexArrays(1, &ID);
 }
 
-void VAO::LinkAttrib(unsigned int attr, unsigned int numComponents,
-	int stride, void* offset) const
-{
-	glEnableVertexAttribArray(attr);
-	glVertexAttribPointer(attr, numComponents, GL_FLOAT, GL_FALSE, stride, offset);
-}
-
-void VAO::LinkAttrib(unsigned int attr, unsigned int numComponents, unsigned int offset) const
+void VAO::LinkFloatAttr(unsigned int attr, unsigned int numComponents)
 {
 	glEnableVertexArrayAttrib(ID, attr);
 	glVertexArrayAttribBinding(ID, attr, 0);
-	glVertexArrayAttribFormat(ID, attr, numComponents, GL_FLOAT, GL_FALSE, offset * sizeof(GLfloat));
+	glVertexArrayAttribFormat(ID, attr, numComponents, GL_FLOAT, GL_FALSE, offset);
+	offset += numComponents * sizeof(GLfloat);
+}
+
+void VAO::LinkByteAttr(unsigned int attr, unsigned int numComponents)
+{
+	glEnableVertexArrayAttrib(ID, attr);
+	glVertexArrayAttribBinding(ID, attr, 0);
+	glVertexArrayAttribFormat(ID, attr, numComponents, GL_UNSIGNED_BYTE, GL_FALSE, offset);
+	offset += numComponents * sizeof(GLbyte);
 }
 
 void VAO::LinkVBO(VBO vbo) const
@@ -30,7 +32,6 @@ void VAO::LinkEBO(EBO ebo) const
 {
 	glVertexArrayElementBuffer(ID, ebo.GetID());
 }
-
 
 void VAO::Bind() const
 {
