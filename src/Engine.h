@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Scene.h"
+#include "World.h"
 #include "Player.h"
 
 class Engine
@@ -13,7 +13,7 @@ public:
 
 private:
 	Player player;
-	Scene scene;
+	World world;
 
 	float dt{ 0.016f };
 

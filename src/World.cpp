@@ -13,10 +13,10 @@ World::~World()
 {
 }
 
-const Chunk* World::GetChunkAt(int x, int y, int z) const
+const Chunk* World::GetChunkAt(int x, int y) const
 {
-	if ((0 <= x && x < WORLD_WIDTH) && (0 <= y && y < WORLD_HEIGHT) && (0 <= z && z < WORLD_WIDTH))
-		return chunks[x + z * WORLD_WIDTH + y * WORLD_AREA].get();
+	if ((0 <= x && x < WORLD_WIDTH) && (0 <= y && y < WORLD_WIDTH))
+		return chunks[x + WORLD_WIDTH * y].get();
 	return nullptr;
 }
 
@@ -29,15 +29,14 @@ void World::Generate()
 	chunkShader.SetTexture(voxelTexture, "u_tex0");
 	voxelTexture.Bind();
 
-	for (int y = 0; y < WORLD_HEIGHT; ++y)
-		for (int z = 0; z < WORLD_WIDTH; ++z)
-			for (int x = 0; x < WORLD_WIDTH; ++x)
-				chunks[x + WORLD_WIDTH * z + WORLD_AREA * y] = std::make_shared<Chunk>(x, y, z, *this);
+	for (int y = 0; y < WORLD_WIDTH; ++y)
+		for (int x = 0; x < WORLD_WIDTH; ++x)
+			chunks[x + WORLD_WIDTH * y] = std::make_shared<Chunk>(x, y, *this);
 
 	for (const auto& chunk : chunks)
 		chunk->Build();
 
-	std::cout << (sizeof(char) * CHUNK_VOLUME * WORLD_VOLUME) / (1024 * 1024) << " Mb! \n";
+	std::cout << ((1.0f * CHUNK_VOLUME * WORLD_AREA) / 1024.0f) / 1024.0f << " Mb! \n";
 }
 
 void World::Update()

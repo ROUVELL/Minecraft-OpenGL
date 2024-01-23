@@ -1,14 +1,16 @@
 #include "Engine.h"
 
+#include <iostream>
 #include <string>
 
 #include "Window.h"
 
 Engine::Engine()
-    : player({ H_CHUNK_SIZE, H_CHUNK_SIZE, H_CHUNK_SIZE}), scene(player)
+    : player({ WORLD_XZ_CENTER, CHUNK_HEIGHT + 2, WORLD_XZ_CENTER}),
+    world(player)
 {
     Window::Initialize();
-    scene.Initialize();
+    world.Generate();
 }
 
 Engine::~Engine()
@@ -30,27 +32,28 @@ void Engine::Run()
 
 void Engine::Update()
 {
-    scene.Update(dt);
+    player.Update(dt);
+    world.Update();
 }
 
 void Engine::Render()
 {
     Window::Clear();
     
-    scene.Render();
+    world.Render();
 
     Window::Flip();
 }
 
 void Engine::Update_dt()
 {
-    static double prevTime{ 0.0 };
+    static float prevTime = 0.0;
 
-    double now = Window::GetTime();
+    float now = (float)(Window::GetTime());
 
-    dt = (float)(now - prevTime);
+    dt = now - prevTime;
     prevTime = now;
-
-    std::string fps = std::to_string(1.0f / dt);
+    
+    const std::string fps = std::to_string(1.0f / dt);
     Window::SetTitle(fps.c_str());
 }

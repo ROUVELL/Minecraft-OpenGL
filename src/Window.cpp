@@ -114,7 +114,7 @@ void Window::Initialize()
         h = mode->height;
     }*/
 
-    GLFWwindow* window = glfwCreateWindow(Window::width, Window::height, "OpengGL", monitor, NULL);
+    GLFWwindow* window = glfwCreateWindow(Window::width, Window::height, "Minecraft OpengGL", monitor, NULL);
     if (window == NULL)
     {
         glfwTerminate();

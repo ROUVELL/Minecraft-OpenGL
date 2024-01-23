@@ -12,18 +12,17 @@ constexpr glm::uint8 LEFT_FACE =   3;
 constexpr glm::uint8 FRONT_FACE =  4;
 constexpr glm::uint8 BACK_FACE =   5;
 
-inline bool IsVoid(const World& world, int vx, int vy, int vz, int wx, int wy, int wz)
+inline bool IsVoid(const World& world, int vx, int vy, int vz, int wx, int wz)
 {
-	const int cx = wx / CHUNK_SIZE - (wx < 0 ? 1 : 0);
-	const int cy = wy / CHUNK_SIZE - (wy < 0 ? 1 : 0);
-	const int cz = wz / CHUNK_SIZE - (wz < 0 ? 1 : 0);
+	const int cx = wx / CHUNK_WIDTH - (wx < 0 ? 1 : 0);
+	const int cz = wz / CHUNK_WIDTH - (wz < 0 ? 1 : 0);
 
-	const Chunk* chunk_ptr = world.GetChunkAt(cx, cy, cz);
+	const Chunk* const chunk_ptr = world.GetChunkAt(cx, cz);
 
 	if (chunk_ptr == nullptr)
 		return true;
 
-	if (chunk_ptr->At((vx + CHUNK_SIZE) % CHUNK_SIZE, (vy + CHUNK_SIZE) % CHUNK_SIZE, (vz + CHUNK_SIZE) % CHUNK_SIZE))
+	if (chunk_ptr->At((vx + CHUNK_WIDTH) % CHUNK_WIDTH, vy, (vz + CHUNK_WIDTH) % CHUNK_WIDTH))
 		return false;
 
 	return true;
@@ -33,27 +32,27 @@ void BuildChunkMesh(Chunk& chunk, const World& world)
 {
 	std::vector<Vertex> vertices;
 
-	const glm::ivec3 chunkPos = chunk.GetPosition();
+	const glm::ivec2 chunkPos = chunk.GetPosition();
 
-	for (int y = 0; y < CHUNK_SIZE; ++y)
+	for (int y = 0; y < CHUNK_HEIGHT; ++y)
 	{
-		const int wy = y + chunkPos.y * CHUNK_SIZE;
+		const bool IS_TOP = y == (CHUNK_HEIGHT - 1);
 
-		for (int z = 0; z < CHUNK_SIZE; ++z)
+		for (int z = 0; z < CHUNK_WIDTH; ++z)
 		{
-			const int wz = z + chunkPos.z * CHUNK_SIZE;
+			const int wz = z + chunkPos.y * CHUNK_WIDTH;
 
-			for (int x = 0; x < CHUNK_SIZE; ++x)
+			for (int x = 0; x < CHUNK_WIDTH; ++x)
 			{
 				const glm::uint8 voxelID = chunk.At(x, y, z);
 
 				if (!voxelID)
 					continue;
 
-				const int wx = x + chunkPos.x * CHUNK_SIZE;
+				const int wx = x + chunkPos.x * CHUNK_WIDTH;
 
 				// top face
-				if (IsVoid(world, x, y + 1, z, wx, wy + 1, wz))
+				if (IS_TOP || IsVoid(world, x, y + 1, z, wx, wz))
 				{
 					Vertex v0{ { x + 1, y + 1, z     }, voxelID, TOP_FACE };
 					Vertex v1{ { x + 1, y + 1, z + 1 }, voxelID, TOP_FACE };
@@ -62,8 +61,8 @@ void BuildChunkMesh(Chunk& chunk, const World& world)
 
 					vertices.insert(vertices.end(), { v0, v1, v2, v0, v2, v3 });
 				}
-				// bootom face
-				if (IsVoid(world, x, y - 1, z, wx, wy - 1, wz))
+				// bottom face
+				if (IsVoid(world, x, y - 1, z, wx, wz))
 				{
 					Vertex v0{ { x + 1, y, z + 1 }, voxelID, BOTTOM_FACE };
 					Vertex v1{ { x + 1, y, z     }, voxelID, BOTTOM_FACE };
@@ -73,7 +72,7 @@ void BuildChunkMesh(Chunk& chunk, const World& world)
 					vertices.insert(vertices.end(), { v0, v1, v2, v0, v2, v3 });
 				}
 				// right face
-				if (IsVoid(world, x + 1, y, z, wx + 1, wy, wz))
+				if (IsVoid(world, x + 1, y, z, wx + 1, wz))
 				{
 					Vertex v0{ { x + 1, y + 1, z     }, voxelID, RIGHT_FACE };
 					Vertex v1{ { x + 1, y    , z     }, voxelID, RIGHT_FACE };
@@ -83,7 +82,7 @@ void BuildChunkMesh(Chunk& chunk, const World& world)
 					vertices.insert(vertices.end(), { v0, v1, v2, v0, v2, v3 });
 				}
 				// left face
-				if (IsVoid(world, x - 1, y, z, wx - 1, wy, wz))
+				if (IsVoid(world, x - 1, y, z, wx - 1, wz))
 				{
 					Vertex v0{ { x, y + 1, z + 1 }, voxelID, LEFT_FACE };
 					Vertex v1{ { x, y    , z + 1 }, voxelID, LEFT_FACE };
@@ -93,7 +92,7 @@ void BuildChunkMesh(Chunk& chunk, const World& world)
 					vertices.insert(vertices.end(), { v0, v1, v2, v0, v2, v3 });
 				}
 				// front face
-				if (IsVoid(world, x, y, z + 1, wx, wy, wz + 1))
+				if (IsVoid(world, x, y, z + 1, wx, wz + 1))
 				{
 					Vertex v0{ { x + 1, y + 1, z + 1 }, voxelID, FRONT_FACE };
 					Vertex v1{ { x + 1, y    , z + 1 }, voxelID, FRONT_FACE };
@@ -103,7 +102,7 @@ void BuildChunkMesh(Chunk& chunk, const World& world)
 					vertices.insert(vertices.end(), { v0, v1, v2, v0, v2, v3 });
 				}
 				// back face
-				if (IsVoid(world, x, y, z - 1, wx, wy, wz - 1))
+				if (IsVoid(world, x, y, z - 1, wx, wz - 1))
 				{
 					Vertex v0{ { x,     y + 1, z }, voxelID, BACK_FACE };
 					Vertex v1{ { x    , y    , z }, voxelID, BACK_FACE };

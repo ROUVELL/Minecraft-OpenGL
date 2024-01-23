@@ -2,26 +2,39 @@
 
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/noise.hpp>
 
 #include "World.h"
 #include "Shader.h"
 
-Chunk::Chunk(int x, int y, int z, World& world)
-	: position(x, y, z), world(world)
+Chunk::Chunk(int x, int y, World& world)
+	: position(x, y), world(world)
 {
-	model = glm::translate(glm::mat4(1.0f), glm::vec3(position * CHUNK_SIZE));
+	model = glm::translate(glm::mat4(1.0f), glm::vec3(x * CHUNK_WIDTH, 0, y * CHUNK_WIDTH));
 
-	for (int y = 0; y < CHUNK_SIZE; ++y)
-		for (int z = 0; z < CHUNK_SIZE; ++z)
-			for (int x = 0; x < CHUNK_SIZE; ++x)
-				voxels[x + CHUNK_SIZE * z + CHUNK_AREA * y] = x + y + z + 1;
+    const glm::ivec2 chunkPos = position * CHUNK_WIDTH;
+
+	for (int x = 0; x < CHUNK_WIDTH; ++x)
+    {
+        int wx = x + chunkPos.x;
+
+        for (int z = 0; z < CHUNK_WIDTH; ++z)
+        {
+            int wz = z + chunkPos.y;
+
+            int height = (int)(glm::simplex(glm::vec2(wx, wz) * 0.01f) * 32 + 32);
+
+            for (int y = 0; y < height; ++y)
+                voxels[x + CHUNK_WIDTH * z + CHUNK_AREA * y] = y;
+        }
+    }
 
 }
 
 glm::uint8 Chunk::GetVoxelAt(int x, int y, int z) const
 {
-	if ((0 <= x && x < CHUNK_SIZE) && (0 <= y && y < CHUNK_SIZE) && (0 <= z && z < CHUNK_SIZE))
-		return voxels[x + z * CHUNK_SIZE + y * CHUNK_AREA];
+	if ((0 <= x && x < CHUNK_WIDTH) && (0 <= y && y < CHUNK_HEIGHT) && (0 <= z && z < CHUNK_WIDTH))
+		return voxels[x + z * CHUNK_WIDTH + y * CHUNK_AREA];
 	return 0;
 }
 
