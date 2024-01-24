@@ -176,12 +176,15 @@
     <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\Window.cpp" />
     <ClCompile Include="src\World.cpp" />
+    <ClCompile Include="src\TerrainGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\default.frag" />
     <None Include="res\shaders\default.vert" />
     <None Include="res\shaders\obj.frag" />
     <None Include="res\shaders\obj.vert" />
+    <None Include="res\shaders\textured.frag" />
+    <None Include="res\shaders\textured.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Chunk.h" />
@@ -200,6 +203,7 @@
     <ClInclude Include="src\Texture.h" />
     <ClInclude Include="src\Window.h" />
     <ClInclude Include="src\World.h" />
+    <ClInclude Include="src\TerrainGenerator.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Lib\lib\glfw3.lib" />

@@ -63,12 +63,17 @@
     <ClCompile Include="src\Chunk.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\TerrainGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\default.vert" />
     <None Include="res\shaders\default.frag" />
     <None Include="res\shaders\obj.vert" />
     <None Include="res\shaders\obj.frag" />
+    <None Include="res\shaders\textured.vert" />
+    <None Include="res\shaders\textured.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\VAO.h">
@@ -117,6 +122,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Chunk.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TerrainGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

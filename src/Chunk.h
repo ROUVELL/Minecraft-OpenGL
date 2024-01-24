@@ -9,6 +9,7 @@
 constexpr int CHUNK_WIDTH = 32;
 constexpr int CHUNK_HEIGHT = 96;
 constexpr int H_CHUNK_WIDTH = CHUNK_WIDTH >> 1;
+constexpr int H_CHUNK_HEIGHT = CHUNK_HEIGHT >> 1;
 constexpr int CHUNK_AREA = CHUNK_WIDTH * CHUNK_WIDTH;
 constexpr int CHUNK_VOLUME = CHUNK_AREA * CHUNK_HEIGHT;
 
@@ -25,7 +26,9 @@ public:
 
 	glm::ivec2 GetPosition() const { return position; }
 	glm::uint8 GetVoxelAt(int x, int y, int z) const;
-	glm::uint8 At(int x, int y, int z) const { return voxels[x + CHUNK_WIDTH * z + CHUNK_AREA * y]; }
+	glm::uint8 GetAt(int x, int y, int z) const { return voxels[x + CHUNK_WIDTH * z + CHUNK_AREA * y]; }
+
+	void SetVoxelAt(int x, int y, int z, glm::uint8 id) { voxels[x + CHUNK_WIDTH * z + CHUNK_AREA * y] = id; }
 
 	void Build();
 

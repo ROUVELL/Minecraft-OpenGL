@@ -1,11 +1,9 @@
 #include "Chunk.h"
 
-#include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/noise.hpp>
 
 #include "World.h"
-#include "Shader.h"
+#include "TerrainGenerator.h"
 
 Chunk::Chunk(int x, int y, World& world)
 	: position(x, y), world(world)
@@ -16,16 +14,16 @@ Chunk::Chunk(int x, int y, World& world)
 
 	for (int x = 0; x < CHUNK_WIDTH; ++x)
     {
-        int wx = x + chunkPos.x;
+        const int wx = x + chunkPos.x;
 
         for (int z = 0; z < CHUNK_WIDTH; ++z)
         {
-            int wz = z + chunkPos.y;
+            const int wz = z + chunkPos.y;
 
-            int height = (int)(glm::simplex(glm::vec2(wx, wz) * 0.01f) * 32 + 32);
+            const int height = GetHeight(wx, wz);
 
             for (int y = 0; y < height; ++y)
-                voxels[x + CHUNK_WIDTH * z + CHUNK_AREA * y] = y;
+                SetVoxel(*this, x, y, z, wx, wz, height);
         }
     }
 

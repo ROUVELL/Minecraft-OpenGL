@@ -20,9 +20,9 @@ inline bool IsVoid(const World& world, int vx, int vy, int vz, int wx, int wz)
 	const Chunk* const chunk_ptr = world.GetChunkAt(cx, cz);
 
 	if (chunk_ptr == nullptr)
-		return true;
+		return false;
 
-	if (chunk_ptr->At((vx + CHUNK_WIDTH) % CHUNK_WIDTH, vy, (vz + CHUNK_WIDTH) % CHUNK_WIDTH))
+	if (chunk_ptr->GetAt((vx + CHUNK_WIDTH) % CHUNK_WIDTH, vy, (vz + CHUNK_WIDTH) % CHUNK_WIDTH))
 		return false;
 
 	return true;
@@ -37,6 +37,7 @@ void BuildChunkMesh(Chunk& chunk, const World& world)
 	for (int y = 0; y < CHUNK_HEIGHT; ++y)
 	{
 		const bool IS_TOP = y == (CHUNK_HEIGHT - 1);
+		const bool CHECK_BOTTOM = y != 0;
 
 		for (int z = 0; z < CHUNK_WIDTH; ++z)
 		{
@@ -44,7 +45,7 @@ void BuildChunkMesh(Chunk& chunk, const World& world)
 
 			for (int x = 0; x < CHUNK_WIDTH; ++x)
 			{
-				const glm::uint8 voxelID = chunk.At(x, y, z);
+				const glm::uint8 voxelID = chunk.GetAt(x, y, z);
 
 				if (!voxelID)
 					continue;
@@ -62,7 +63,7 @@ void BuildChunkMesh(Chunk& chunk, const World& world)
 					vertices.insert(vertices.end(), { v0, v1, v2, v0, v2, v3 });
 				}
 				// bottom face
-				if (IsVoid(world, x, y - 1, z, wx, wz))
+				if (CHECK_BOTTOM && IsVoid(world, x, y - 1, z, wx, wz))
 				{
 					Vertex v0{ { x + 1, y, z + 1 }, voxelID, BOTTOM_FACE };
 					Vertex v1{ { x + 1, y, z     }, voxelID, BOTTOM_FACE };
