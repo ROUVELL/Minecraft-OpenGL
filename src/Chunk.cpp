@@ -23,6 +23,7 @@ Chunk::Chunk(int x, int y, World& world)
             const int height = GetHeight(wx, wz);
 
             for (int y = 0; y < height; ++y)
+                //voxels[x + CHUNK_WIDTH * z + CHUNK_AREA * y] = y + 1;
                 SetVoxel(*this, x, y, z, wx, wz, height);
         }
     }

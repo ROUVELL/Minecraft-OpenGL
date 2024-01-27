@@ -5,8 +5,14 @@
 
 EBO::EBO(const std::vector<unsigned int>& indices)
 {
-	glCreateBuffers(1, &ID);
-	glNamedBufferData(ID, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
+	Create(indices);
+}
+
+void EBO::Create(const std::vector<unsigned int>& indices)
+{
+	glGenBuffers(1, &ID);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
 }
 
 void EBO::Bind() const

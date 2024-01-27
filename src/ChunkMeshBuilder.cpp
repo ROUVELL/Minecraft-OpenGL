@@ -5,6 +5,7 @@
 #include "Chunk.h"
 #include "World.h"
 
+// faces
 constexpr glm::uint8 TOP_FACE =    0;
 constexpr glm::uint8 BOTTOM_FACE = 1;
 constexpr glm::uint8 RIGHT_FACE =  2;
@@ -12,7 +13,29 @@ constexpr glm::uint8 LEFT_FACE =   3;
 constexpr glm::uint8 FRONT_FACE =  4;
 constexpr glm::uint8 BACK_FACE =   5;
 
-inline bool IsVoid(const World& world, int vx, int vy, int vz, int wx, int wz)
+// UVs
+constexpr glm::uint8 BOTTOM_LEFT =  0;  // 00
+constexpr glm::uint8 TOP_LEFT =     1;  // 01
+constexpr glm::uint8 BOTTOM_RIGHT = 2;  // 10
+constexpr glm::uint8 TOP_RIGHT =    3;  // 11
+
+/*
+x and z     from 0 to 32   = 6 bits
+y           from 0 to 96   = 7 bits
+volexId     from 0 to 255  = 8 bits
+uv          from 0 to 3    = 2 bits
+
+total                      = 29 bits
+*/
+
+using uInt = unsigned int;
+
+inline static uInt PackData(int x, int y, int z, glm::uint8 voxelId, glm::uint8 uv) noexcept
+{
+	return (x << 23) | (y << 16) | (z << 10) | (voxelId << 2)  | uv;
+}
+
+inline static bool IsVoid(const World& world, int vx, int vy, int vz, int wx, int wz)
 {
 	const int cx = wx / CHUNK_WIDTH - (wx < 0 ? 1 : 0);
 	const int cz = wz / CHUNK_WIDTH - (wz < 0 ? 1 : 0);
@@ -30,7 +53,7 @@ inline bool IsVoid(const World& world, int vx, int vy, int vz, int wx, int wz)
 
 void BuildChunkMesh(Chunk& chunk, const World& world)
 {
-	std::vector<Vertex> vertices;
+	std::vector<uInt> vertData;
 
 	const glm::ivec2 chunkPos = chunk.GetPosition();
 
@@ -55,68 +78,68 @@ void BuildChunkMesh(Chunk& chunk, const World& world)
 				// top face
 				if (IS_TOP || IsVoid(world, x, y + 1, z, wx, wz))
 				{
-					Vertex v0{ { x + 1, y + 1, z     }, voxelID, TOP_FACE };
-					Vertex v1{ { x + 1, y + 1, z + 1 }, voxelID, TOP_FACE };
-					Vertex v2{ { x    , y + 1, z + 1 }, voxelID, TOP_FACE };
-					Vertex v3{ { x    , y + 1, z     }, voxelID, TOP_FACE };
+					uInt v0 = PackData(x + 1, y + 1, z    , voxelID, TOP_RIGHT);
+					uInt v1 = PackData(x + 1, y + 1, z + 1, voxelID, BOTTOM_RIGHT);
+					uInt v2 = PackData(x    , y + 1, z + 1, voxelID, BOTTOM_LEFT);
+					uInt v3 = PackData(x    , y + 1, z    , voxelID, TOP_LEFT);
 
-					vertices.insert(vertices.end(), { v0, v1, v2, v0, v2, v3 });
+					vertData.insert(vertData.end(), { v0, v1, v2, v0, v2, v3 });
 				}
 				// bottom face
 				if (CHECK_BOTTOM && IsVoid(world, x, y - 1, z, wx, wz))
 				{
-					Vertex v0{ { x + 1, y, z + 1 }, voxelID, BOTTOM_FACE };
-					Vertex v1{ { x + 1, y, z     }, voxelID, BOTTOM_FACE };
-					Vertex v2{ { x    , y, z     }, voxelID, BOTTOM_FACE };
-					Vertex v3{ { x,     y, z + 1 }, voxelID, BOTTOM_FACE };
+					uInt v0 = PackData(x + 1, y, z + 1, voxelID, TOP_RIGHT);
+					uInt v1 = PackData(x + 1, y, z    , voxelID, BOTTOM_RIGHT);
+					uInt v2 = PackData(x    , y, z    , voxelID, BOTTOM_LEFT);
+					uInt v3 = PackData(x,     y, z + 1, voxelID, TOP_LEFT);
 
-					vertices.insert(vertices.end(), { v0, v1, v2, v0, v2, v3 });
+					vertData.insert(vertData.end(), { v0, v1, v2, v0, v2, v3 });
 				}
 				// right face
 				if (IsVoid(world, x + 1, y, z, wx + 1, wz))
 				{
-					Vertex v0{ { x + 1, y + 1, z     }, voxelID, RIGHT_FACE };
-					Vertex v1{ { x + 1, y    , z     }, voxelID, RIGHT_FACE };
-					Vertex v2{ { x + 1, y    , z + 1 }, voxelID, RIGHT_FACE };
-					Vertex v3{ { x + 1, y + 1, z + 1 }, voxelID, RIGHT_FACE };
+					uInt v0 = PackData(x + 1, y + 1, z    , voxelID, TOP_RIGHT);
+					uInt v1 = PackData(x + 1, y    , z    , voxelID, BOTTOM_RIGHT);
+					uInt v2 = PackData(x + 1, y    , z + 1, voxelID, BOTTOM_LEFT);
+					uInt v3 = PackData(x + 1, y + 1, z + 1, voxelID, TOP_LEFT);
 
-					vertices.insert(vertices.end(), { v0, v1, v2, v0, v2, v3 });
+					vertData.insert(vertData.end(), { v0, v1, v2, v0, v2, v3 });
 				}
 				// left face
 				if (IsVoid(world, x - 1, y, z, wx - 1, wz))
 				{
-					Vertex v0{ { x, y + 1, z + 1 }, voxelID, LEFT_FACE };
-					Vertex v1{ { x, y    , z + 1 }, voxelID, LEFT_FACE };
-					Vertex v2{ { x, y    , z     }, voxelID, LEFT_FACE };
-					Vertex v3{ { x, y + 1, z     }, voxelID, LEFT_FACE };
+					uInt v0 = PackData(x, y + 1, z + 1, voxelID, TOP_RIGHT);
+					uInt v1 = PackData(x, y    , z + 1, voxelID, BOTTOM_RIGHT);
+					uInt v2 = PackData(x, y    , z    , voxelID, BOTTOM_LEFT);
+					uInt v3 = PackData(x, y + 1, z    , voxelID, TOP_LEFT);
 
-					vertices.insert(vertices.end(), { v0, v1, v2, v0, v2, v3 });
+					vertData.insert(vertData.end(), { v0, v1, v2, v0, v2, v3 });
 				}
 				// front face
 				if (IsVoid(world, x, y, z + 1, wx, wz + 1))
 				{
-					Vertex v0{ { x + 1, y + 1, z + 1 }, voxelID, FRONT_FACE };
-					Vertex v1{ { x + 1, y    , z + 1 }, voxelID, FRONT_FACE };
-					Vertex v2{ { x    , y    , z + 1 }, voxelID, FRONT_FACE };
-					Vertex v3{ { x    , y + 1, z + 1 }, voxelID, FRONT_FACE };
+					uInt v0 = PackData(x + 1, y + 1, z + 1, voxelID, TOP_RIGHT);
+					uInt v1 = PackData(x + 1, y    , z + 1, voxelID, BOTTOM_RIGHT);
+					uInt v2 = PackData(x    , y    , z + 1, voxelID, BOTTOM_LEFT);
+					uInt v3 = PackData(x    , y + 1, z + 1, voxelID, TOP_LEFT);
 
-					vertices.insert(vertices.end(), { v0, v1, v2, v0, v2, v3 });
+					vertData.insert(vertData.end(), { v0, v1, v2, v0, v2, v3 });
 				}
 				// back face
 				if (IsVoid(world, x, y, z - 1, wx, wz - 1))
 				{
-					Vertex v0{ { x,     y + 1, z }, voxelID, BACK_FACE };
-					Vertex v1{ { x    , y    , z }, voxelID, BACK_FACE };
-					Vertex v2{ { x + 1, y    , z }, voxelID, BACK_FACE };
-					Vertex v3{ { x + 1, y + 1, z }, voxelID, BACK_FACE };
+					uInt v0 = PackData(x,     y + 1, z, voxelID, TOP_RIGHT);
+					uInt v1 = PackData(x    , y    , z, voxelID, BOTTOM_RIGHT);
+					uInt v2 = PackData(x + 1, y    , z, voxelID, BOTTOM_LEFT);
+					uInt v3 = PackData(x + 1, y + 1, z, voxelID, TOP_LEFT);
 
-					vertices.insert(vertices.end(), { v0, v1, v2, v0, v2, v3 });
+					vertData.insert(vertData.end(), { v0, v1, v2, v0, v2, v3 });
 				}
 			}
 		}
 	}
 	
-	chunk.mesh.Build(vertices);
+	chunk.mesh.Build(vertData);
 }
 
 

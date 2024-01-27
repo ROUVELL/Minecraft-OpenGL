@@ -1,10 +1,10 @@
-#version 460 core
+#version 330 core
 
-layout (location = 0) out vec4 FragColor;
+layout (location = 0) out vec3 FragColor;
 
 uniform sampler2D u_tex0;
 
-in vec2 uv;
+in vec2 UV;
 in vec3 voxelColor;
 
 const vec3 gamma = vec3(2.2);
@@ -12,12 +12,11 @@ const vec3 invGamma = 1.0 / gamma;
 
 void main()
 {
-	vec4 color = texture(u_tex0, uv);
-	color.rgb = pow(color.rgb, gamma);
+	vec3 color = texture(u_tex0, UV).rgb;
+	color = pow(color, gamma);
 
-	if (color.a < 0.1)
-		color.rgb += voxelColor;
+	color *= voxelColor;
 
-	color.rgb = pow(color.rgb, invGamma);
+	color = pow(color, invGamma);
 	FragColor = color;
 }

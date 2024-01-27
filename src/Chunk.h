@@ -3,7 +3,7 @@
 #include <array>
 #include <glm/glm.hpp>
 
-#include "Mesh.h"
+#include "ChunkMesh.h"
 #include "ChunkMeshBuilder.h"
 
 constexpr int CHUNK_WIDTH = 32;
@@ -39,7 +39,7 @@ private:
 
 	VoxelsArray voxels{ 0 };
 
-	Mesh mesh;
+	ChunkMesh mesh;
 
 	glm::ivec2 position{ 0 };
 	glm::mat4 model{ 1.0f };

@@ -160,6 +160,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\ChunkMesh.cpp" />
     <ClCompile Include="src\Chunk.cpp" />
     <ClCompile Include="src\ChunkMeshBuilder.cpp" />
     <ClCompile Include="src\Player.cpp" />
@@ -187,6 +188,7 @@
     <None Include="res\shaders\textured.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ChunkMesh.h" />
     <ClInclude Include="src\Chunk.h" />
     <ClInclude Include="src\ChunkMeshBuilder.h" />
     <ClInclude Include="Lib\include\glad\glad.h" />

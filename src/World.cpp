@@ -1,6 +1,7 @@
 #include "World.h"
 
 #include <iostream>
+#include <glad/glad.h>
 
 #include "Player.h"
 
@@ -23,7 +24,7 @@ const Chunk* World::GetChunkAt(int x, int y) const
 void World::Generate()
 {
 	chunkShader.Load("default");
-	voxelTexture.Load("frame.png");
+	voxelTexture.Load("frame.png", GL_TEXTURE_2D);
 
 	chunkShader.Activate();
 	chunkShader.SetTexture(voxelTexture, "u_tex0");

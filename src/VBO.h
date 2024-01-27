@@ -6,11 +6,11 @@
 
 struct Vertex
 {
-	glm::vec3 position;
+	glm::i8vec3 position;
 	glm::uint8 voxelId;
 	glm::uint8 faceId;
 
-	Vertex(glm::vec3 p, glm::uint8 vId, glm::uint8 fId)
+	Vertex(glm::i8vec3 p, glm::uint8 vId, glm::uint8 fId)
 		: position(p), voxelId(vId), faceId(fId)
 	{ }
 };
@@ -18,10 +18,12 @@ struct Vertex
 class VBO
 {
 public:
+	VBO() = default;
 	VBO(const std::vector<Vertex>& vertices);
 
 	unsigned int GetID() const { return ID; }
 
+	void Create(const std::vector<Vertex>& vertices);
 	void Bind() const;
 	void Unbind() const;
 	void Delete() const;

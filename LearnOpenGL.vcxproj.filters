@@ -66,6 +66,9 @@
     <ClCompile Include="src\TerrainGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ChunkMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\default.vert" />
@@ -125,6 +128,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\TerrainGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ChunkMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

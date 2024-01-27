@@ -4,11 +4,11 @@ class Texture
 {
 public:
 	Texture() = default;
-	Texture(const char* name, unsigned int unit = 0);
+	Texture(const char* name, unsigned int type, unsigned int unit = 0);
 
 	unsigned int GetUnit() const { return unit; }
 
-	void Load(const char* name, unsigned int unit = 0);
+	void Load(const char* name, unsigned int type, unsigned int unit = 0);
 
 	void Bind() const;
 	void Unbind() const;
@@ -16,6 +16,7 @@ public:
 
 private:
 	unsigned int ID{ 0 };
+	unsigned int type{ 0 };
 	unsigned int unit{ 0 };
 };
 

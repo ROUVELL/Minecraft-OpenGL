@@ -4,33 +4,14 @@
 
 void VAO::Create()
 {
-	glCreateVertexArrays(1, &ID);
+	glGenVertexArrays(1, &ID);
+	glBindVertexArray(ID);
 }
 
-void VAO::LinkFloatAttr(unsigned int attr, unsigned int numComponents)
+void VAO::LinkAttr(const Attribute& attr)
 {
-	glEnableVertexArrayAttrib(ID, attr);
-	glVertexArrayAttribBinding(ID, attr, 0);
-	glVertexArrayAttribFormat(ID, attr, numComponents, GL_FLOAT, GL_FALSE, offset);
-	offset += numComponents * sizeof(GLfloat);
-}
-
-void VAO::LinkByteAttr(unsigned int attr, unsigned int numComponents)
-{
-	glEnableVertexArrayAttrib(ID, attr);
-	glVertexArrayAttribBinding(ID, attr, 0);
-	glVertexArrayAttribFormat(ID, attr, numComponents, GL_UNSIGNED_BYTE, GL_FALSE, offset);
-	offset += numComponents * sizeof(GLbyte);
-}
-
-void VAO::LinkVBO(VBO vbo) const
-{
-	glVertexArrayVertexBuffer(ID, 0, vbo.GetID(), 0, sizeof(Vertex));
-}
-
-void VAO::LinkEBO(EBO ebo) const
-{
-	glVertexArrayElementBuffer(ID, ebo.GetID());
+	glVertexAttribPointer(attr.layout, attr.components, attr.type, GL_FALSE, static_cast<GLsizei>(sizeof(Vertex)), attr.offset);
+	glEnableVertexAttribArray(attr.layout);
 }
 
 void VAO::Bind() const

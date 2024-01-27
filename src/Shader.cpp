@@ -33,7 +33,6 @@ Shader::Shader(const std::string& vShader, const std::string& fShader)
     Load(vShader, fShader);
 }
 
-
 Shader::Shader(const std::string& name)
 {
     Load(name + ".vert", name + ".frag");

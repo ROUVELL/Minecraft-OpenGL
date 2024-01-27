@@ -15,12 +15,11 @@ void Mesh::Build(const std::vector<Vertex>& vert)
 
 	VBO vbo{ vert };
 
-	vao.LinkFloatAttr(0, 3);
-	vao.LinkByteAttr(1, 1);
-	vao.LinkByteAttr(2, 1);
+	vao.LinkAttr(Attribute{ 0, 3, GL_UNSIGNED_BYTE, 0 });
+	vao.LinkAttr(Attribute{ 1, 1, GL_UNSIGNED_BYTE, (void*)(3 * sizeof(char)) });
+	vao.LinkAttr(Attribute{ 2, 1, GL_UNSIGNED_BYTE, (void*)(3 * sizeof(char) + sizeof(char)) });
 
-	vao.LinkVBO(vbo);
-
+	vao.Unbind();
 	vbo.Delete();
 }
 

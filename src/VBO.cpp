@@ -2,10 +2,17 @@
 
 #include <glad/glad.h>
 
+
 VBO::VBO(const std::vector<Vertex>& vertices)
 {
-	glCreateBuffers(1, &ID);
-	glNamedBufferData(ID, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+	Create(vertices);
+}
+
+void VBO::Create(const std::vector<Vertex>& vertices)
+{
+	glGenBuffers(1, &ID);
+	glBindBuffer(GL_ARRAY_BUFFER, ID);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 }
 
 void VBO::Bind() const
