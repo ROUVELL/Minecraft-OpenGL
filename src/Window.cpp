@@ -3,22 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-void KeyboardCallback(GLFWwindow* win, int key, int scancode, int action, int mods)
-{
-    if (action == GLFW_PRESS)
-    {
-        if (key == GLFW_KEY_ESCAPE) glfwSetWindowShouldClose(win, 1);
-
-        else if (key == GLFW_KEY_F1) glfwSwapInterval(1);
-        else if (key == GLFW_KEY_F2) glfwSwapInterval(0);
-        else if (key == GLFW_KEY_F3) glEnable(GL_CULL_FACE);
-        else if (key == GLFW_KEY_F4) glDisable(GL_CULL_FACE);
-        else if (key == GLFW_KEY_F5) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        else if (key == GLFW_KEY_F6) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        else if (key == GLFW_KEY_F7) glCullFace(GL_BACK);
-        else if (key == GLFW_KEY_F8) glCullFace(GL_FRONT);
-    }
-}
+#include "WindowCallbacks.h"
 
 GLFWwindow* Window::instance = nullptr;
 int Window::width = 1200;
@@ -94,7 +79,7 @@ void Window::SetCursorDisabled()
     glfwSetInputMode(Window::instance, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
-void Window::Initialize()
+void Window::Initialize(Engine* engine)
 {
     glfwInit();
 
@@ -123,7 +108,14 @@ void Window::Initialize()
         return;
     }
 
+    glfwSetWindowUserPointer(window, engine);
+
     glfwSetKeyCallback(window, KeyboardCallback);
+    glfwSetMouseButtonCallback(window, MouseButtonCallback);
+    glfwSetWindowSizeCallback(window, WindowSizeCallback);
+    glfwSetWindowCloseCallback(window, WindowCloseCallback);
+    glfwSetErrorCallback(ErrorCallback);
+
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
 

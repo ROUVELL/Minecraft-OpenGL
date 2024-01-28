@@ -1,6 +1,7 @@
 #pragma once
 
 struct GLFWwindow;
+class Engine;
 
 class Window
 {
@@ -25,7 +26,7 @@ public:
 	static void SetCursorVisible();
 	static void SetCursorDisabled();
 
-	static void Initialize();
+	static void Initialize(Engine* engine);
 	static void Terminate();
 	static void ProcessEvents();
 	static void Clear();
