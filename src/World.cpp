@@ -10,10 +10,6 @@ World::World(Player& player)
 {
 }
 
-World::~World()
-{
-}
-
 const Chunk* World::GetChunkAt(int x, int y) const
 {
 	if ((0 <= x && x < WORLD_WIDTH) && (0 <= y && y < WORLD_WIDTH))

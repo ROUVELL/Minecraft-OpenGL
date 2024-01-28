@@ -5,76 +5,68 @@ layout (location = 0) in uint a_vertData;
 uniform mat4 u_camMat;
 uniform mat4 u_modelMat;
 
-out vec2 UV;
+out vec2 uv;
 out vec3 voxelColor;
+out float ao;
 
 const vec2 uvCoords[4] = vec2[4]
 (
-	vec2(1, 0), vec2(1, 1),
-	vec2(0, 0), vec2(0, 1)
+	vec2(0, 1), vec2(1, 1),
+	vec2(0, 0), vec2(1, 0)
 );
 
 const int uvIndices[12] = int[12]
 (
-	1, 0, 2, 1, 2, 3,
-	3, 0, 2, 3, 1, 0
+	1, 3, 2, 1, 2, 0,
+	3, 2, 0, 3, 0, 1
+);
+
+const float faceShading[6] = float[6]
+(
+	1.0, 0.2,
+	0.6, 0.6,
+	0.6, 0.6
+);
+
+const float aoValues[4] = float[4]
+(
+	0.1, 0.35, 0.65, 1.0
 );
 
 int x, y, z;
 int voxelId;
-vec2 uv;
+int faceId;
+int aoId;
+int flip;
 
 void unpackData()
 {
-	// return (x << 23) | (y << 16) | (z << 10) | (voxelId << 2)  | uv;
+	// (x << 26) | (y << 19) | (z << 14) | (voxelId << 6) | (faceId << 3) | (ao << 1) | flip;
 
-	x = int(a_vertData >> 23u);
-	y = int((a_vertData >> 16u) & 127u);
-	z = int((a_vertData >> 10u) & 63u);
+	x = int(a_vertData >> 26u);
+	y = int((a_vertData >> 19u) & 127u);
+	z = int((a_vertData >> 14u) & 31u);
 
-	voxelId = int((a_vertData >> 2u) & 255u);
-	uv = vec2((a_vertData >> 1u) & 1u, a_vertData & 1u);
+	voxelId = int((a_vertData >> 6u) & 255u);
+	faceId = int((a_vertData >> 3u) & 7u); 
+	aoId = int((a_vertData >> 1u) & 3u);
+	flip = int(a_vertData & 1u);
 	
 }
-//
-//int mt_rng(int seed) {
-//    const int a = 0x9908B0DF;
-//    const int b = 0x9D2C5680;
-//    const int c = 0xEFC60000;
-//    const int d = 0xFFFFFFFF;
-//
-//    seed ^= (seed >> 30);
-//    seed ^= (seed << 11);
-//    seed ^= (seed >> 21);
-//
-//    return (seed * a) ^ ((seed ^ d) & b) ^ ((seed & d) << c);
-//}
-//
-//float random(inout int seed)
-//{
-//	seed += 1;
-//    return float(mt_rng(seed)) / float(0xFFFFFFFFu);
-//}
-//
-//vec3 randomColor()
-//{
-//	int seed = voxelId;
-//	return vec3(random(seed), random(seed), random(seed));
-//}
-//
-vec3 hash31(float p)
+vec3 hash31()
 {
-	vec3 p3 = fract(vec3(p + 21.2) * vec3(0.1031, 0.1030, 0.973));
+	vec3 p3 = fract(vec3(voxelId * 21.2) * vec3(0.1031, 0.1030, 0.0973));
 	p3 += dot(p3, p3.yzx + 33.33);
-	return fract((p3.xxy, p3.yzz) * p3.zyx) + 0.05;
+	return fract((p3.xxy + p3.yzz) * p3.zyx) + 0.05;
 }
 
 void main()
 {
 	unpackData();
-
-	voxelColor = hash31(voxelId);
-	UV = uv;
+	
+	uv = uvCoords[uvIndices[gl_VertexID % 6 + (flip & 1) * 6]];
+	voxelColor = hash31();
+	ao = aoValues[aoId];
 
 	gl_Position = u_camMat * u_modelMat * vec4(x, y, z, 1.0);
 }

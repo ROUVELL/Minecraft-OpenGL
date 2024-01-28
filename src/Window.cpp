@@ -15,6 +15,8 @@ void KeyboardCallback(GLFWwindow* win, int key, int scancode, int action, int mo
         else if (key == GLFW_KEY_F4) glDisable(GL_CULL_FACE);
         else if (key == GLFW_KEY_F5) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         else if (key == GLFW_KEY_F6) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        else if (key == GLFW_KEY_F7) glCullFace(GL_BACK);
+        else if (key == GLFW_KEY_F8) glCullFace(GL_FRONT);
     }
 }
 

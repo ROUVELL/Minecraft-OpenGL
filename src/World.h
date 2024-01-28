@@ -6,7 +6,7 @@
 #include "Shader.h"
 #include "Texture.h"
 
-constexpr int WORLD_WIDTH = 15;
+constexpr int WORLD_WIDTH = 40;
 constexpr int H_WORLD_WIDTH = WORLD_WIDTH >> 1;
 constexpr int WORLD_AREA = WORLD_WIDTH * WORLD_WIDTH;
 
@@ -21,7 +21,6 @@ class World
 {
 public:
 	World(Player& player);
-	~World();
 
 	const Chunk* GetChunkAt(int x, int y) const;
 	const Chunk* GetAt(int x, int y) const { return chunks[x + WORLD_WIDTH * y].get(); }

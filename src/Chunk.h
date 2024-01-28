@@ -6,7 +6,7 @@
 #include "ChunkMesh.h"
 #include "ChunkMeshBuilder.h"
 
-constexpr int CHUNK_WIDTH = 32;
+constexpr int CHUNK_WIDTH = 16;
 constexpr int CHUNK_HEIGHT = 96;
 constexpr int H_CHUNK_WIDTH = CHUNK_WIDTH >> 1;
 constexpr int H_CHUNK_HEIGHT = CHUNK_HEIGHT >> 1;
