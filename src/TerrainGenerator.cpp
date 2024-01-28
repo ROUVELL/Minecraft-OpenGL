@@ -49,11 +49,11 @@ void SetVoxel(Chunk& chunk, int x, int y, int z, int wx, int wz, int height)
 
     if (y < height - 1)
     {
-        // caves  !!! VERY SLOW !!!
-        if (glm::perlin(glm::vec3{ wx * 0.09f, y * 0.09f, wz * 0.09f }) > 0.0f
-            && ((glm::perlin(glm::vec2{ wx * 0.1f, wz * 0.1f }) * 3.0f + 3.0f) < y && y < height - 10))
-            chunk.SetVoxelAt(x, y, z, 0);
-        else
+        // caves  !!! VERY SLOW ON DEBUG !!!
+        //if (glm::perlin(glm::vec3{ wx * 0.09f, y * 0.09f, wz * 0.09f }) > 0.0f
+        //    && ((glm::perlin(glm::vec2{ wx * 0.1f, wz * 0.1f }) * 3.0f + 3.0f) < y && y < height - 10))
+        //    chunk.SetVoxelAt(x, y, z, 0);
+        //else
             chunk.SetVoxelAt(x, y, z, STONE);
     }
     else

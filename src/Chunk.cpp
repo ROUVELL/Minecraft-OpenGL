@@ -23,11 +23,10 @@ Chunk::Chunk(int x, int y, World& world)
             const int height = GetHeight(wx, wz);
 
             for (int y = 0; y < height; ++y)
-                //voxels[x + CHUNK_WIDTH * z + CHUNK_AREA * y] = y + 1;
-                SetVoxel(*this, x, y, z, wx, wz, height);
+                voxels[x + CHUNK_WIDTH * z + CHUNK_AREA * y] = position.x + position.y + 1;
+                //SetVoxel(*this, x, y, z, wx, wz, height);
         }
     }
-
 }
 
 glm::uint8 Chunk::GetVoxelAt(int x, int y, int z) const
@@ -37,9 +36,23 @@ glm::uint8 Chunk::GetVoxelAt(int x, int y, int z) const
 	return 0;
 }
 
+void Chunk::RemoveAt(int x, int y, int z)
+{
+    if (GetVoxelAt(x, y, z))
+    {
+        SetVoxelAt(x, y, z, 0);
+        Rebuild();
+    }
+}
+
 void Chunk::Build()
 {
-	BuildChunkMesh(*this, world);
+	mesh.Build(BuildChunkMesh(*this, world));
+}
+
+void Chunk::Rebuild()
+{
+    mesh.Rebuild(BuildChunkMesh(*this, world));
 }
 
 void Chunk::Render() const

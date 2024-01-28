@@ -1,5 +1,6 @@
 #include "ChunkMesh.h"
 
+#include <iostream>
 #include "glad/glad.h"
 
 void ChunkMesh::Build(const std::vector<unsigned int>& vertexData)
@@ -9,7 +10,6 @@ void ChunkMesh::Build(const std::vector<unsigned int>& vertexData)
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	
-	unsigned int vbo;
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(unsigned int), vertexData.data(), GL_STATIC_DRAW);
@@ -27,6 +27,21 @@ void ChunkMesh::Build(const std::vector<unsigned int>& vertexData)
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	//glDeleteBuffers(0, &vbo);
+
+}
+
+void ChunkMesh::Rebuild(const std::vector<unsigned int>& vertexData)
+{
+	if (vertexData.size() != count)
+	{
+		Build(vertexData);
+	}
+	else
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, vertexData.size() * sizeof(unsigned int), vertexData.data());
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
 
 }
 

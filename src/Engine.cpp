@@ -6,10 +6,10 @@
 #include "Window.h"
 
 Engine::Engine()
-    : player({ WORLD_XZ_CENTER, CHUNK_HEIGHT + 2, WORLD_XZ_CENTER}),
+    : player({ WORLD_XZ_CENTER, CHUNK_HEIGHT, WORLD_XZ_CENTER}),
     world(player)
 {
-    Window::Initialize();
+    Window::Initialize(this);
     world.Generate();
 }
 
@@ -34,6 +34,18 @@ void Engine::Update()
 {
     player.Update(dt);
     world.Update();
+
+    static bool leftPressed = false;
+    if (Window::IsMouseKeyPressed(0))
+    {
+        if (!leftPressed)
+        {
+            leftPressed = true;
+            world.Remove();
+        }
+    }
+    else
+        leftPressed = false;
 }
 
 void Engine::Render()

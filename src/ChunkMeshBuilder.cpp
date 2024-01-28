@@ -1,7 +1,6 @@
 #include "ChunkMeshBuilder.h"
 
 #include <iostream>
-#include <vector>
 #include <array>
 
 #include "Chunk.h"
@@ -50,7 +49,7 @@ inline static bool IsVoid(int vx, int vy, int vz, int wx, int wz, const World& w
 	if (chunk_ptr == nullptr)
 		return true;
 
-	if (chunk_ptr->GetAt((vx + CHUNK_WIDTH) % CHUNK_WIDTH, vy, (vz + CHUNK_WIDTH) % CHUNK_WIDTH))
+	if (chunk_ptr->GetVoxelAt((vx + CHUNK_WIDTH) % CHUNK_WIDTH, vy, (vz + CHUNK_WIDTH) % CHUNK_WIDTH))
 		return false;
 
 	return true;
@@ -102,7 +101,7 @@ inline static std::array<int, 4> GetAo(int vx, int vy, int vz, int wx, int wz, c
 	return std::array<int, 4>({ a + b + c, c + d + e, e + f + g, g + h + a });
 }
 
-void BuildChunkMesh(Chunk& chunk, const World& world)
+std::vector<unsigned int> BuildChunkMesh(Chunk& chunk, const World& world)
 {
 	std::vector<uInt> vertData;
 
@@ -132,7 +131,7 @@ void BuildChunkMesh(Chunk& chunk, const World& world)
 					continue;
 
 				// top face
-				if (IS_TOP || IsVoid(x, y + 1, z, wx, wz, world))
+ 				if (IS_TOP || IsVoid(x, y + 1, z, wx, wz, world))
 				{
 					const auto ao = GetAo(x, y + 1, z, wx, wz, world, Y_PLANE);
 					const int flip = ao[3] + ao[1] > ao[0] + ao[2];
@@ -230,8 +229,8 @@ void BuildChunkMesh(Chunk& chunk, const World& world)
 			}
 		}
 	}
-	
-	chunk.mesh.Build(vertData);
+
+	return vertData;
 }
 
 

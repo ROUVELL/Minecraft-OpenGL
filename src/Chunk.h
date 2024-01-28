@@ -29,8 +29,10 @@ public:
 	glm::uint8 GetAt(int x, int y, int z) const { return voxels[x + CHUNK_WIDTH * z + CHUNK_AREA * y]; }
 
 	void SetVoxelAt(int x, int y, int z, glm::uint8 id) { voxels[x + CHUNK_WIDTH * z + CHUNK_AREA * y] = id; }
+	void RemoveAt(int x, int y, int z);
 
 	void Build();
+	void Rebuild();
 
 	void Render() const;
 
@@ -44,6 +46,6 @@ private:
 	glm::ivec2 position{ 0 };
 	glm::mat4 model{ 1.0f };
 
-	friend void BuildChunkMesh(Chunk& chunk, const World& world);
+	friend std::vector<unsigned int> BuildChunkMesh(Chunk& chunk, const World& world);
 };
 

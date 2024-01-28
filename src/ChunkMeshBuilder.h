@@ -1,6 +1,8 @@
 #pragma once
 
+#include <vector>
+
 class Chunk;
 class World;
 
-void BuildChunkMesh(Chunk& chunk, const World& world);
+std::vector<unsigned int> BuildChunkMesh(Chunk& chunk, const World& world);
