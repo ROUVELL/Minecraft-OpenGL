@@ -5,13 +5,7 @@
 
 #include "ChunkMesh.h"
 #include "ChunkMeshBuilder.h"
-
-constexpr int CHUNK_WIDTH = 16;
-constexpr int CHUNK_HEIGHT = 96;
-constexpr int H_CHUNK_WIDTH = CHUNK_WIDTH >> 1;
-constexpr int H_CHUNK_HEIGHT = CHUNK_HEIGHT >> 1;
-constexpr int CHUNK_AREA = CHUNK_WIDTH * CHUNK_WIDTH;
-constexpr int CHUNK_VOLUME = CHUNK_AREA * CHUNK_HEIGHT;
+#include "Constants.h"
 
 using VoxelsArray = std::array<glm::uint8, CHUNK_VOLUME>;
 

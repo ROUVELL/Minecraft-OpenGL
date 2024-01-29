@@ -4,13 +4,13 @@
 #include <glad/glad.h>
 
 #include "Player.h"
-
-constexpr float MAX_RAY_DIST = 8.0f;
+#include "Constants.h"
 
 struct RayCastResult
 {
 	Chunk* chunk_ptr;
-	const glm::ivec3 voxelPos;
+	int vx, vy, vz;
+	int cx, cz;
 };
 
 static inline RayCastResult RayCastVoxels(const World& world, const Player& player);
@@ -21,37 +21,56 @@ World::World(Player& player)
 {
 }
 
-Chunk* World::GetChunkAt(int x, int y) const
+Chunk* World::GetChunkAt(int cx, int cy) const
 {
-	auto pair = chunks.find(((long long)x << 32) | y);
+	auto pair = chunks.find(((long long)cx << 32) | cy);
 
 	if (pair != chunks.cend())
 		return pair->second.get();
 	return nullptr;
 }
 
-Chunk* World::GetAt(int x, int y)
+Chunk* World::GetAt(int cx, int cy)
 {
-	return chunks[((long long)x << 32) | y].get();
+	return chunks[((long long)cx << 32) | cy].get();
 }
 
-void World::Remove()
+void World::RemoveVoxel()
 {
 	const RayCastResult result = RayCastVoxels(*this, player);
 
 	if (result.chunk_ptr != nullptr)
-		result.chunk_ptr->RemoveAt(result.voxelPos.x, result.voxelPos.y, result.voxelPos.z);
+		result.chunk_ptr->RemoveAt(result.vx, result.vy, result.vz);
+
+	// rebuild adjacent chunks
+
+	/*
+	NOTE: It is not necessary to rebuild the neighboring chunk if the blocks
+	of the neighboring chunk are not closer to the removed block than 2.
+	Since it does not affect the mesh itself or its lighting (ao).
+	*/
+	if (result.vx == 0)                    RebuildChunk(result.cx - 1, result.cz);
+	else if (result.vx == CHUNK_WIDTH - 1) RebuildChunk(result.cx + 1, result.cz);
+	if (result.vz == 0)                    RebuildChunk(result.cx, result.cz - 1);
+	else if (result.vz == CHUNK_WIDTH - 1) RebuildChunk(result.cx, result.cz + 1);
 }
 
-void World::RemoveAt(int x, int y, int z)
+void World::RemoveVoxel(int wx, int wy, int wz)
 {
-	Chunk* const chunk = GetChunkAt(x / CHUNK_WIDTH, z / CHUNK_WIDTH);
+	Chunk* const chunk = GetChunkAt(wx / CHUNK_WIDTH, wz / CHUNK_WIDTH);
 
 	if (chunk != nullptr)
-		chunk->RemoveAt(x % CHUNK_WIDTH, y % CHUNK_HEIGHT, z % CHUNK_WIDTH);
+		chunk->RemoveAt(wx % CHUNK_WIDTH, wy % CHUNK_HEIGHT, wz % CHUNK_WIDTH);
 }
 
-void World::Generate()
+void World::RebuildChunk(int cx, int cz)
+{
+	Chunk* const chunk_ptr = GetChunkAt(cx, cz);
+	if (chunk_ptr != nullptr)
+		chunk_ptr->Rebuild();
+}
+
+void World::Initialize()
 {
 	chunkShader.Load("default");
 	voxelTexture.Load("frame.png", GL_TEXTURE_2D);
@@ -82,7 +101,7 @@ void World::Render()
 	}
 }
 
-static RayCastResult RayCastVoxels(const World& world, const Player& player)
+static inline RayCastResult RayCastVoxels(const World& world, const Player& player)
 {
 	const glm::vec3 start = player.GetPosition();
 	const glm::vec3 end = start + player.GetDirection() * MAX_RAY_DIST;
@@ -111,9 +130,11 @@ static RayCastResult RayCastVoxels(const World& world, const Player& player)
 		{
 			if (chunk_ptr->GetVoxelAt((int)current.x % CHUNK_WIDTH, (int)current.y % CHUNK_HEIGHT, (int)current.z % CHUNK_WIDTH))
 				return RayCastResult{ chunk_ptr,
-								{ (int)current.x % CHUNK_WIDTH,
+								(int)current.x % CHUNK_WIDTH,
 								(int)current.y % CHUNK_HEIGHT,
-								(int)current.z % CHUNK_WIDTH } };
+								(int)current.z % CHUNK_WIDTH,
+								(int)current.x / CHUNK_WIDTH,
+								(int)current.z / CHUNK_WIDTH };
 		}
 
 		if (max.x < max.y)

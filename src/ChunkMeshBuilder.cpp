@@ -1,25 +1,10 @@
 #include "ChunkMeshBuilder.h"
 
-#include <iostream>
 #include <array>
 
 #include "Chunk.h"
 #include "World.h"
-
-// faces
-constexpr int TOP_FACE =    0;
-constexpr int BOTTOM_FACE = 1;
-constexpr int RIGHT_FACE =  2;
-constexpr int LEFT_FACE =   3;
-constexpr int FRONT_FACE =  4;
-constexpr int BACK_FACE =   5;
-
-// plane
-constexpr int Y_PLANE = 1;
-constexpr int X_PLANE = 2;
-constexpr int Z_PLANE = 3;
-
-constexpr int WORLD_BORDER = CHUNK_WIDTH * WORLD_WIDTH - 1;
+#include "Constants.h"
 
 /*
 x and z     from 0 to 16   = 5 bits

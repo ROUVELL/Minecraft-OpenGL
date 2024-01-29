@@ -10,7 +10,7 @@ Engine::Engine()
     world(player)
 {
     Window::Initialize(this);
-    world.Generate();
+    world.Initialize();
 }
 
 Engine::~Engine()
@@ -41,7 +41,7 @@ void Engine::Update()
         if (!leftPressed)
         {
             leftPressed = true;
-            world.Remove();
+            world.RemoveVoxel();
         }
     }
     else

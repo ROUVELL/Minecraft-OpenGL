@@ -5,6 +5,7 @@
 #include <glm/gtc/noise.hpp>
 
 #include "World.h"
+#include "Constants.h"
 
 constexpr float a1 = (float)H_CHUNK_HEIGHT;  // amplitude
 constexpr float a2 = a1 * 0.5f;

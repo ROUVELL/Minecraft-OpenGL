@@ -191,11 +191,13 @@
     <ClInclude Include="Lib\include\glad\glad.h" />
     <ClInclude Include="Lib\include\GLFW\glfw3.h" />
     <ClInclude Include="Lib\include\KHR\khrplatform.h" />
+    <ClInclude Include="src\Constants.h" />
     <ClInclude Include="src\Player.h" />
     <ClInclude Include="src\Engine.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Texture.h" />
+    <ClInclude Include="src\Uttils.h" />
     <ClInclude Include="src\Window.h" />
     <ClInclude Include="src\World.h" />
     <ClInclude Include="src\TerrainGenerator.h" />
