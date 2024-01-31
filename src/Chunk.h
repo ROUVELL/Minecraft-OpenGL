@@ -4,7 +4,6 @@
 #include <glm/glm.hpp>
 
 #include "ChunkMesh.h"
-#include "ChunkMeshBuilder.h"
 #include "Constants.h"
 
 using VoxelsArray = std::array<glm::uint8, CHUNK_VOLUME>;
@@ -14,16 +13,22 @@ class World;
 class Chunk
 {
 public:
-	Chunk(int x, int y, World& world);
+	Chunk(int cx, int cy, World& world);
 
 	const glm::mat4& GetModelMat() const { return model; }
-
 	glm::ivec2 GetPosition() const { return position; }
-	glm::uint8 GetVoxelAt(int x, int y, int z) const;
-	glm::uint8 GetAt(int x, int y, int z) const { return voxels[x + CHUNK_WIDTH * z + CHUNK_AREA * y]; }
 
-	void SetVoxelAt(int x, int y, int z, glm::uint8 id) { voxels[x + CHUNK_WIDTH * z + CHUNK_AREA * y] = id; }
-	void RemoveAt(int x, int y, int z);
+	glm::uint8 GetAtSafe(int vx, int vy, int vz) const;
+	glm::uint8 GetAtSafe(const glm::ivec3& pos) const;
+	glm::uint8 GetAt(int vx, int vy, int vz) const;
+	glm::uint8 GetAt(const glm::ivec3& pos) const;
+
+	void SetAtSafe(int vx, int vy, int vz, glm::uint8 id);
+	void SetAtSafe(const glm::ivec3& pos, glm::uint8 id);
+	void SetAt(int vx, int vy, int vz, glm::uint8 id);
+	void SetAt(const glm::ivec3& pos, glm::uint8 id);
+	void RemoveAtSafe(int vx, int vy, int vz);
+	void RemoveAtSafe(const glm::ivec3& pos);
 
 	void Build();
 	void Rebuild();
@@ -39,7 +44,5 @@ private:
 
 	glm::ivec2 position{ 0 };
 	glm::mat4 model{ 1.0f };
-
-	friend std::vector<unsigned int> BuildChunkMesh(Chunk& chunk, const World& world);
 };
 

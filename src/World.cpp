@@ -4,16 +4,16 @@
 #include <glad/glad.h>
 
 #include "Player.h"
-#include "Constants.h"
+#include "Uttils.h"
 
 struct RayCastResult
 {
 	Chunk* chunk_ptr;
-	int vx, vy, vz;
-	int cx, cz;
+	glm::ivec3 local;
+	glm::ivec2 chunkPos;
 };
 
-static inline RayCastResult RayCastVoxels(const World& world, const Player& player);
+static inline RayCastResult RayCastVoxels(World& world, const Player& player);
 
 
 World::World(Player& player)
@@ -21,18 +21,28 @@ World::World(Player& player)
 {
 }
 
-Chunk* World::GetChunkAt(int cx, int cy) const
+Chunk* World::GetAtSafe(int cx, int cz)
 {
-	auto pair = chunks.find(((long long)cx << 32) | cy);
-
-	if (pair != chunks.cend())
-		return pair->second.get();
+	if (chunks.contains(ChunkPosToKey(cx, cz)))
+		return chunks[ChunkPosToKey(cx, cz)].get();
 	return nullptr;
 }
 
-Chunk* World::GetAt(int cx, int cy)
+Chunk* World::GetAtSafe(const glm::ivec2 pos)
 {
-	return chunks[((long long)cx << 32) | cy].get();
+	if (chunks.contains(ChunkPosToKey(pos)))
+		return chunks[ChunkPosToKey(pos)].get();
+	return nullptr;
+}
+
+Chunk* World::GetAt(int cx, int cz)
+{
+	return chunks[ChunkPosToKey(cx, cz)].get();
+}
+
+Chunk* World::GetAt(const glm::ivec2 pos)
+{
+	return chunks[ChunkPosToKey(pos)].get();
 }
 
 void World::RemoveVoxel()
@@ -40,34 +50,36 @@ void World::RemoveVoxel()
 	const RayCastResult result = RayCastVoxels(*this, player);
 
 	if (result.chunk_ptr != nullptr)
-		result.chunk_ptr->RemoveAt(result.vx, result.vy, result.vz);
+	{
+		result.chunk_ptr->RemoveAtSafe(result.local);
 
-	// rebuild adjacent chunks
 
-	/*
-	NOTE: It is not necessary to rebuild the neighboring chunk if the blocks
-	of the neighboring chunk are not closer to the removed block than 2.
-	Since it does not affect the mesh itself or its lighting (ao).
-	*/
-	if (result.vx == 0)                    RebuildChunk(result.cx - 1, result.cz);
-	else if (result.vx == CHUNK_WIDTH - 1) RebuildChunk(result.cx + 1, result.cz);
-	if (result.vz == 0)                    RebuildChunk(result.cx, result.cz - 1);
-	else if (result.vz == CHUNK_WIDTH - 1) RebuildChunk(result.cx, result.cz + 1);
+		// rebuild adjacent chunks
+
+		/*
+		NOTE: It is not necessary to rebuild the neighboring chunk if the blocks
+		of the neighboring chunk are not closer to the removed block than 2.
+		Since it does not affect the mesh itself or its lighting (ao).
+		*/
+		if (result.local.x == 0)                    RebuildChunk(result.chunkPos.x - 1, result.chunkPos.y    );
+		else if (result.local.x == CHUNK_WIDTH - 1) RebuildChunk(result.chunkPos.x + 1, result.chunkPos.y    );
+		if (result.local.z == 0)                    RebuildChunk(result.chunkPos.x    , result.chunkPos.y - 1);
+		else if (result.local.z == CHUNK_WIDTH - 1) RebuildChunk(result.chunkPos.x    , result.chunkPos.y + 1);
+	}
 }
 
-void World::RemoveVoxel(int wx, int wy, int wz)
+void World::RemoveVoxelSafe(int wx, int wy, int wz)
 {
-	Chunk* const chunk = GetChunkAt(wx / CHUNK_WIDTH, wz / CHUNK_WIDTH);
+	const long long int key = ChunkPosToKey(GlobalToChunk(wx, wz));
 
-	if (chunk != nullptr)
-		chunk->RemoveAt(wx % CHUNK_WIDTH, wy % CHUNK_HEIGHT, wz % CHUNK_WIDTH);
+	if (chunks.contains(key))
+		chunks[key]->RemoveAtSafe(GlobalToLocal(wx, wy, wz));
 }
 
 void World::RebuildChunk(int cx, int cz)
 {
-	Chunk* const chunk_ptr = GetChunkAt(cx, cz);
-	if (chunk_ptr != nullptr)
-		chunk_ptr->Rebuild();
+	if (chunks.contains(ChunkPosToKey(cx, cz)))
+		chunks[ChunkPosToKey(cx, cz)]->Rebuild();
 }
 
 void World::Initialize()
@@ -79,9 +91,9 @@ void World::Initialize()
 	chunkShader.SetTexture(voxelTexture, "u_tex0");
 	voxelTexture.Bind();
 
-	for (int y = 0; y < WORLD_WIDTH; ++y)
+	for (int z = 0; z < WORLD_WIDTH; ++z)
 		for (int x = 0; x < WORLD_WIDTH; ++x)
-			chunks[((long long)x << 32) | y] = std::make_shared<Chunk>(x, y, *this);
+			chunks[ChunkPosToKey(x, z)] = std::make_shared<Chunk>(x, z, *this);
 
 	for (const auto& chunk : chunks)
 		chunk.second->Build();
@@ -101,7 +113,7 @@ void World::Render()
 	}
 }
 
-static inline RayCastResult RayCastVoxels(const World& world, const Player& player)
+static inline RayCastResult RayCastVoxels(World& world, const Player& player)
 {
 	const glm::vec3 start = player.GetPosition();
 	const glm::vec3 end = start + player.GetDirection() * MAX_RAY_DIST;
@@ -124,17 +136,12 @@ static inline RayCastResult RayCastVoxels(const World& world, const Player& play
 
 	while (!(max.x > 1.0f && max.y > 1.0f && max.z > 1.0f))
 	{
-		chunk_ptr = world.GetChunkAt((int)current.x / CHUNK_WIDTH, (int)current.z / CHUNK_WIDTH);
+		chunk_ptr = world.GetAtSafe(GlobalToChunk((int)current.x, (int)current.z));
 
 		if (chunk_ptr != nullptr)
 		{
-			if (chunk_ptr->GetVoxelAt((int)current.x % CHUNK_WIDTH, (int)current.y % CHUNK_HEIGHT, (int)current.z % CHUNK_WIDTH))
-				return RayCastResult{ chunk_ptr,
-								(int)current.x % CHUNK_WIDTH,
-								(int)current.y % CHUNK_HEIGHT,
-								(int)current.z % CHUNK_WIDTH,
-								(int)current.x / CHUNK_WIDTH,
-								(int)current.z / CHUNK_WIDTH };
+			if (chunk_ptr->GetAtSafe(GlobalToLocal((int)current.x, (int)current.y, (int)current.z)))
+				return RayCastResult{ chunk_ptr, GlobalToLocal((int)current.x, (int)current.y, (int)current.z), GlobalToChunk((int)current.x, (int)current.z)};
 		}
 
 		if (max.x < max.y)

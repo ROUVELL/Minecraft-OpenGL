@@ -5,4 +5,4 @@
 class Chunk;
 class World;
 
-std::vector<unsigned int> BuildChunkMesh(Chunk& chunk, const World& world);
+std::vector<unsigned int> BuildChunkMesh(Chunk& chunk, World& world);

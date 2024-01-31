@@ -53,20 +53,20 @@ void SetVoxel(Chunk& chunk, int x, int y, int z, int wx, int wz, int height)
         // caves  !!! VERY SLOW ON DEBUG !!!
         //if (glm::perlin(glm::vec3{ wx * 0.09f, y * 0.09f, wz * 0.09f }) > 0.0f
         //    && ((glm::perlin(glm::vec2{ wx * 0.1f, wz * 0.1f }) * 3.0f + 3.0f) < y && y < height - 10))
-        //    chunk.SetVoxelAt(x, y, z, 0);
+        //    chunk.SetAt(x, y, z, 0);
         //else
-            chunk.SetVoxelAt(x, y, z, STONE);
+            chunk.SetAt(x, y, z, STONE);
     }
     else
     {
         const int rng = std::rand() % 7;
         const int ry = y - rng;
 
-        if (SNOW_LVL <= ry && ry < height)         chunk.SetVoxelAt(x, y, z, SNOW);
-        else if (STONE_LVL <= ry && ry < SNOW_LVL) chunk.SetVoxelAt(x, y, z, STONE);
-        else if (DIRT_LVL <= ry && ry < STONE_LVL) chunk.SetVoxelAt(x, y, z, DIRT);
-        else if (GRASS_LVL <= ry && ry < DIRT_LVL) chunk.SetVoxelAt(x, y, z, GRASS);
-        else chunk.SetVoxelAt(x, y, z, SAND);
+        if (SNOW_LVL <= ry && ry < height)         chunk.SetAt(x, y, z, SNOW);
+        else if (STONE_LVL <= ry && ry < SNOW_LVL) chunk.SetAt(x, y, z, STONE);
+        else if (DIRT_LVL <= ry && ry < STONE_LVL) chunk.SetAt(x, y, z, DIRT);
+        else if (GRASS_LVL <= ry && ry < DIRT_LVL) chunk.SetAt(x, y, z, GRASS);
+        else chunk.SetAt(x, y, z, SAND);
     }
 
 }

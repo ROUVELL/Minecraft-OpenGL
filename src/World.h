@@ -16,11 +16,13 @@ class World
 public:
 	World(Player& player);
 
-	Chunk* GetChunkAt(int cx, int cy) const;
-	Chunk* GetAt(int cx, int cy);
+	Chunk* GetAtSafe(int cx, int cz);
+	Chunk* GetAtSafe(const glm::ivec2 pos);
+	Chunk* GetAt(int cx, int cz);
+	Chunk* GetAt(const glm::ivec2 pos);
 
 	void RemoveVoxel();
-	void RemoveVoxel(int wx, int wy, int wz);
+	void RemoveVoxelSafe(int wx, int wy, int wz);
 
 	void RebuildChunk(int cx, int cz);
 

@@ -1,10 +1,8 @@
 #include "ChunkMeshBuilder.h"
 
-#include <array>
-
 #include "Chunk.h"
 #include "World.h"
-#include "Constants.h"
+#include "Uttils.h"
 
 /*
 x and z     from 0 to 16   = 5 bits
@@ -24,23 +22,20 @@ inline static uInt PackData(int x, int y, int z, glm::uint8 voxelId, int faceId,
 	return (x << 26) | (y << 19) | (z << 14) | (voxelId << 6) | (faceId << 3) | (ao << 1) | flip;
 }
 
-inline static bool IsVoid(int vx, int vy, int vz, int wx, int wz, const World& world)
+inline static bool IsVoid(int vx, int vy, int vz, int wx, int wz, World& world)
 {
-	const int cx = wx / CHUNK_WIDTH - (wx < 0 ? 1 : 0);
-	const int cz = wz / CHUNK_WIDTH - (wz < 0 ? 1 : 0);
-
-	const Chunk* const chunk_ptr = world.GetChunkAt(cx, cz);
+	const Chunk* const chunk_ptr = world.GetAtSafe(GlobalToChunk(wx, wz));
 
 	if (chunk_ptr == nullptr)
 		return true;
 
-	if (chunk_ptr->GetVoxelAt((vx + CHUNK_WIDTH) % CHUNK_WIDTH, vy, (vz + CHUNK_WIDTH) % CHUNK_WIDTH))
+	if (chunk_ptr->GetAtSafe((vx + CHUNK_WIDTH) % CHUNK_WIDTH, vy, (vz + CHUNK_WIDTH) % CHUNK_WIDTH))
 		return false;
 
 	return true;
 };
 
-inline static std::array<int, 4> GetAo(int vx, int vy, int vz, int wx, int wz, const World& world, int plane)
+inline static std::array<int, 4> GetAo(int vx, int vy, int vz, int wx, int wz, World& world, int plane)
 {
 	int a = 0, b = 0, c = 0, d = 0, e = 0, f = 0, g = 0, h = 0;
 
@@ -86,7 +81,7 @@ inline static std::array<int, 4> GetAo(int vx, int vy, int vz, int wx, int wz, c
 	return std::array<int, 4>({ a + b + c, c + d + e, e + f + g, g + h + a });
 }
 
-std::vector<unsigned int> BuildChunkMesh(Chunk& chunk, const World& world)
+std::vector<unsigned int> BuildChunkMesh(Chunk& chunk, World& world)
 {
 	std::vector<uInt> vertData;
 

@@ -3,12 +3,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "World.h"
+#include "ChunkMeshBuilder.h"
 #include "TerrainGenerator.h"
+#include "Uttils.h"
 
-Chunk::Chunk(int x, int y, World& world)
-	: position(x, y), world(world)
+Chunk::Chunk(int cx, int cy, World& world)
+	: position(cx, cy), world(world)
 {
-	model = glm::translate(glm::mat4(1.0f), glm::vec3(x * CHUNK_WIDTH, 0, y * CHUNK_WIDTH));
+	model = glm::translate(glm::mat4(1.0f), glm::vec3(cx * CHUNK_WIDTH, 0, cy * CHUNK_WIDTH));
 
     const glm::ivec2 chunkPos = position * CHUNK_WIDTH;
 
@@ -19,28 +21,76 @@ Chunk::Chunk(int x, int y, World& world)
         for (int z = 0; z < CHUNK_WIDTH; ++z)
         {
             const int wz = z + chunkPos.y;
-
+            
             const int height = GetHeight(wx, wz);
 
             for (int y = 0; y < height; ++y)
-                voxels[x + CHUNK_WIDTH * z + CHUNK_AREA * y] = position.x + position.y + 1;
+                voxels[LocalToIndex(x, y, z)] = position.x + position.y + 1;
                 //SetVoxel(*this, x, y, z, wx, wz, height);
         }
     }
 }
 
-glm::uint8 Chunk::GetVoxelAt(int x, int y, int z) const
+glm::uint8 Chunk::GetAtSafe(int vx, int vy, int vz) const
 {
-	if ((0 <= x && x < CHUNK_WIDTH) && (0 <= y && y < CHUNK_HEIGHT) && (0 <= z && z < CHUNK_WIDTH))
-		return voxels[x + z * CHUNK_WIDTH + y * CHUNK_AREA];
+	if (IsIndexCorrect(vx, vy, vz))
+		return voxels[LocalToIndex(vx, vy, vz)];
 	return 0;
 }
 
-void Chunk::RemoveAt(int x, int y, int z)
+glm::uint8 Chunk::GetAtSafe(const glm::ivec3& pos) const
 {
-    if (GetVoxelAt(x, y, z))
+    if (IsIndexCorrect(pos))
+        return voxels[LocalToIndex(pos)];
+    return 0;
+}
+
+glm::uint8 Chunk::GetAt(int vx, int vy, int vz) const
+{
+    return voxels[LocalToIndex(vx, vy, vz)];
+}
+
+glm::uint8 Chunk::GetAt(const glm::ivec3& pos) const
+{
+    return voxels[LocalToIndex(pos)];
+}
+
+void Chunk::SetAtSafe(int vx, int vy, int vz, glm::uint8 id)
+{
+    if (IsIndexCorrect(vx, vy, vz))
+        voxels[LocalToIndex(vx, vy, vz)] = id;
+}
+
+void Chunk::SetAtSafe(const glm::ivec3& pos, glm::uint8 id)
+{
+    if (IsIndexCorrect(pos))
+        voxels[LocalToIndex(pos)] = id;
+}
+
+void Chunk::SetAt(int vx, int vy, int vz, glm::uint8 id)
+{
+    voxels[LocalToIndex(vx, vy, vz)] = id;
+}
+
+void Chunk::SetAt(const glm::ivec3& pos, glm::uint8 id)
+{
+    voxels[LocalToIndex(pos)] = id;
+}
+
+void Chunk::RemoveAtSafe(int vx, int vy, int vz)
+{
+    if (GetAtSafe(vx, vy, vz))
     {
-        SetVoxelAt(x, y, z, 0);
+        SetAt(vx, vy, vz, 0);
+        Rebuild();
+    }
+}
+
+void Chunk::RemoveAtSafe(const glm::ivec3& pos)
+{
+    if (GetAtSafe(pos))
+    {
+        SetAt(pos, 0);
         Rebuild();
     }
 }
